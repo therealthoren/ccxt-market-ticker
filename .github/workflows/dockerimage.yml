@@ -1,4 +1,4 @@
-name: Create apache-nifi-s3 docker container
+name: Create ccxt-market-ticker docker container
 
 on:
   workflow_dispatch:
