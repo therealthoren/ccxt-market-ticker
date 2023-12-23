@@ -1,8 +1,7 @@
 #!/bin/sh
 
-pip3 show coinlib
 
-python3 -u coinlibFactory.py 2>&1 &
+python3 -u dockerRunner.py 2>&1 &
 P1=$!
 
 # node tumblerServer starten

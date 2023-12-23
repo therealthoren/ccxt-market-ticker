@@ -6,7 +6,7 @@ from marketticker import MarketListener, AccountListener, Symbol
 from marketticker.MarketListener import MarketData
 
 
-class RabbitMQListener:
+class MQListener:
     """"
     This Listener connects to a specific "exchange" and fetches all
     messages from the queue. The messages are then passed to the MarketListener callback class

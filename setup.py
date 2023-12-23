@@ -1,4 +1,4 @@
-"""Setup script for coinlib"""
+"""Setup script for marketticker package."""
 import os.path
 from setuptools import setup
 from setuptools import setup, find_packages
@@ -30,12 +30,14 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
     ],
-    packages=find_packages(include=('coinlib*',)),
+    packages=find_packages(include=('marketticker*',)),
     include_package_data=True,
     install_requires=[
-        "requests", "ipython", "ipykernel", "pytest", "semver", "datascience", "munch", "packaging", "coolname", "google", "aio_pika",
-        "grpcio", "grpcio-tools", "protobuf", "cython",  "pandas", "websocket-client", "plotly", "simplejson", "ipynb_path",
-        "matplotlib", "pyarrow", "pandas", "python-dateutil", "chipmunkdb-python-client", "pycryptodome"
+        "numpy",
+        "pandas",
+        "ccxt",
+        "pytest",
+        "pika"
     ],
-    entry_points={"console_scripts": ["coinlib=index:main"]},
+    entry_points={"console_scripts": ["marketticker=index:main"]},
 )

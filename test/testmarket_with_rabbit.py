@@ -1,6 +1,6 @@
 import unittest
 
-from marketticker.RabbitMQListener import RabbitMQListener
+from marketticker.MQListener import MQListener
 from marketticker.Symbol import Symbol
 from marketticker.factory import CCXTMarketTickerFactory
 
@@ -34,10 +34,10 @@ class TestMarketWithRabbit(unittest.TestCase):
             def onMarketTickerReceived(self, data):
                 print("1: "+str(data))
 
-        listener = RabbitMQListener("localhost", 5672, "test", "test")
+        listener = MQListener("localhost", 5672, "test", "test")
         listener.connect()
 
-        listener2 = RabbitMQListener("localhost", 5672, "test", "test")
+        listener2 = MQListener("localhost", 5672, "test", "test")
         listener2.connect()
 
         try:

@@ -1,6 +1,6 @@
 from marketticker.AccountDataManager import AccountDataManager
 from marketticker.MarketDataManager import MarketDataManager
-from marketticker.RabbitQueuePublisher import RabbitQueuePublisher
+from marketticker.MQPublisher import RabbitQueuePublisher
 
 
 class CCXTMarketTickerFactory:
