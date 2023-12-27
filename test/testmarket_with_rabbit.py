@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from marketticker.MQListener import MQListener
@@ -9,7 +10,7 @@ class TestMarketWithRabbit(unittest.TestCase):
 
     def test_watch_with_rabbit(self):
         factory = CCXTMarketTickerFactory()
-        factory.installRabbitQueue("localhost", 5672, "test", "test")
+        factory.installRabbitQueue("localhost", 5672, os.environ.get("rabbit_user"), os.environ.get("rabbit_pwd"))
         fetchService = factory.createBasicMarketDataManager(
             "binance",
             "",
@@ -34,19 +35,19 @@ class TestMarketWithRabbit(unittest.TestCase):
             def onMarketTickerReceived(self, data):
                 print("1: "+str(data))
 
-        listener = MQListener("localhost", 5672, "test", "test")
+        listener = MQListener("localhost", 5672, os.environ.get("rabbit_user"),os.environ.get("rabbit_pwd"))
         listener.connect()
 
-        listener2 = MQListener("localhost", 5672, "test", "test")
+        listener2 = MQListener("localhost", 5672, os.environ.get("rabbit_user"),os.environ.get("rabbit_pwd"))
         listener2.connect()
 
         try:
             fetcher = fetchService.createFetcher(Symbol("BTC/USDT"), "1m")
 
-            listener.followMarketTicker("binance", Symbol("BTC/USDT"), "1m", YourListener())
-            listener2.followMarketTicker("binance", Symbol("BTC/USDT"), "1m", YourListener2())
+            listener.followMarket("binance", Symbol("BTC/USDT"), "1m", YourListener())
+            listener2.followMarket("binance", Symbol("BTC/USDT"), "1m", YourListener2())
 
-            fetcher.wait()
+            factory.run()
         except Exception as e:
             self.fail(e)
 

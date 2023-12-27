@@ -26,7 +26,7 @@ class MarketData:
         pass
 
     def __str__(self):
-        return f"MarketData(final={self.final} exchange={self.exchange}, symbol={self.symbol.name}, open={self.open}, high={self.high}, low={self.low}, close={self.close}, volume={self.volume})"
+        return f"MarketData(final={self.final}, last={self.last}, interval={self.interval}, exchange={self.exchange}, symbol={self.symbol.name}, open={self.open}, high={self.high}, low={self.low}, close={self.close}, volume={self.volume})"
 
     @staticmethod
     def from_json(json_str):
@@ -45,6 +45,7 @@ class MarketData:
         m.volume = d["volume"]
         m.last = d["last"]
         m.final = d["final"]
+        m.interval = d["interval"]
         return m
 
     def json(self):
@@ -54,6 +55,7 @@ class MarketData:
         return {
             "exchange": self.exchange,
             "symbol": self.symbol.name,
+            "interval": self.interval,
             "open": self.open,
             "high": self.high,
             "low": self.low,

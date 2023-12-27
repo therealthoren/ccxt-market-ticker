@@ -71,6 +71,10 @@ class MarketDataConsumer:
         self._listener = listener
         self._symbol = symbol
         self._interval = interval
+        if loop is None:
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+        self.loop = loop
 
 
     def start(self):
@@ -78,14 +82,9 @@ class MarketDataConsumer:
         self._fetch_exchange = self.generateExchange()
         self.apiInfo = self.extractApiInformation()
 
-        self._final_thread = Thread(target=self.waitForFinalCandleLoop, args=(), daemon=True)
-        self._final_thread.start()
+        self.loop.create_task(self.waitForFinalCandle())
+        self.loop.create_task(self.consumeMarketData())
 
-        # start a Thread for "consumeMarketData" so that it runs async
-        self._thread = Thread(target=self.consumeMarketDataLoop, args=(), daemon=True)
-        self._thread.start()
-
-        return self._thread
 
     async def waitForFinalCandle(self):
         # get the current time
@@ -129,20 +128,24 @@ class MarketDataConsumer:
                 data.low = candle[0][3]
                 data.close = candle[0][4]
                 data.volume = candle[0][5]
+
+
+                data.symbol = self._symbol
+                data.interval = self._interval
+                data.exchange = self._symbol.exchange
                 # we have reached the next candle
                 # send the last candle to the listener
                 # and reset the last candle
                 # check if onMarketDataReceived is implemented
-                if "onMarketDataReceived" in dir(self._listener):
-                    self._listener.onMarketDataReceived(data)
+                try:
+                    if "onMarketDataReceived" in dir(self._listener):
+                        self._listener.onMarketDataReceived(data)
+                except Exception as e:
+                    print("Error in onMarketDataReceived: " + str(e))
+                    pass
 
                 lastCandleTime = nextCandleTime
 
-    def waitForFinalCandleLoop(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-
-        self.loop.run_until_complete(self.waitForFinalCandle())
 
 
     def wait(self):
@@ -155,12 +158,8 @@ class MarketDataConsumer:
         self.cancel()
 
     def extractApiInformation(self):
-        try:
-            # check if connected
-            self._exchange.fetch_balance()
-        except Exception as e:
-            print("Warning: You have not entered a correct api key - the following information is public available, but be aware that some broker does not allow public market data access")
         self._markets = self._exchange.load_markets()
+        self._fetch_exchange.load_markets()
 
 
     def generateExchange(self):
@@ -194,10 +193,8 @@ class MarketDataConsumer:
 
     def consumeMarketDataLoop(self):
 
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
 
-        self.loop.run_until_complete(self.consumeMarketData())
+        self.loop.create_task(self.consumeMarketData())
 
     async def consumeMarketData(self):
 
@@ -232,7 +229,11 @@ class MarketDataConsumer:
                 t.exchange = self._symbol.exchange
 
                 t.final = False
-                self._listener.onMarketTickerReceived(t)
+                try:
+                    self._listener.onMarketTickerReceived(t)
+                except Exception as e:
+                    print("Error in onMarketTickerReceived: " + str(e))
+                    pass
 
             except ccxt.RequestTimeout as e:
                 print('[' + type(e).__name__ + ']')

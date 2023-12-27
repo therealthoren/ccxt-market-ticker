@@ -12,4 +12,4 @@ class YourListener:
     def onMarketTickerReceived(self, data):
         print("1: " + str(data))
 
-listener.followMarketTicker("binance", Symbol("BTC/USDT"), "1m", YourListener())
+listener.followMarket("binance", Symbol("BTC/USDT"), "1m", YourListener())
