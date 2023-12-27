@@ -38,12 +38,14 @@ class CCXTMarketTickerFactory(ZookeeperListener, MarketListener):
         pass
 
     def onMarketDataReceived(self, data):
-        pass
+        if self.marketListener is not None:
+            self.marketListener.onMarketDataReceived(data)
 
     def onMarketTickerReceived(self, data):
         symbol = data.symbol
-        print("Ticker: "+str(data))
         self.z.registerDataReceivedForSymbol(symbol.exchange, symbol.name, data.interval)
+        if self.marketListener is not None:
+            self.marketListener.onMarketTickerReceived(data)
 
 
     def installRabbitQueue(self, host, port, username, password, exchange_prefix=""):

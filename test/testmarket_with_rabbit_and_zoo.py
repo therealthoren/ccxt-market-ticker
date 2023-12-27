@@ -20,10 +20,15 @@ class TestMarketWithRabbitAndZoo(unittest.TestCase):
             def onMarketTickerReceived(self, data):
                 print("2: "+str(data))
 
+        listener = MQListener("localhost", 5672, os.environ.get("rabbit_user"),os.environ.get("rabbit_pwd"))
+        listener.connect()
+
         try:
 
             fetcher = factory.startMarketDataZookeeperListener("localhost", 2181, "/marketticker",
                                                      YourListener2())
+
+            listener.followMarket("binance", Symbol("ETH/USDT"), "1m", YourListener2())
 
             factory.run()
         except Exception as e:
