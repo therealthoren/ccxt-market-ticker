@@ -3,6 +3,7 @@ import random
 import time
 from threading import Thread, Timer
 
+
 from kazoo.client import KazooClient
 from kazoo.protocol.states import EventType
 from kazoo.retry import KazooRetry
@@ -15,18 +16,30 @@ class ZookeeperManager:
     symbol_watchers = {}
     registration_running = False
 
-    def __init__(self, host, port, path, callbackClass: ZookeeperListener):
+    def __init__(self, host, port, path, callbackClass: ZookeeperListener=None):
         self.host = host
-        self.port = port
+        self.port = int(port)
         self.path = path
         self.callbackClass = callbackClass
 
-    def start(self, factory):
+    def getAllExchanges(self):
+        brokerTree = self.getRecursiveChildren(self.path+"/broker")
+        exchanges = []
+        for exchange in brokerTree:
+            dataInfo = brokerTree[exchange]["data"]
+            exchanges.append(dataInfo["name"])
+        return exchanges
+
+    def connect(self):
 
         zkr = KazooRetry(max_tries=-1)
         self.zk = KazooClient(hosts=self.host + ':' + str(self.port), connection_retry=zkr)
         self.zk.start()
         self.zk.ensure_path(self.path)
+
+    def start(self, factory):
+
+        self.connect()
         self.running = True
         self.thread = ThreadJob(self.runKarooChildrenWatcher, 30+(random.random()*30))
         self.runKarooChildrenWatcher()
@@ -145,3 +158,11 @@ class ZookeeperManager:
         self.zk.close()
         self.consumerTimer.cancel()
         self.thread.cancel()
+
+    def getExchangeData(self, e):
+        brokerTree = self.getRecursiveChildren(self.path+"/broker")
+        for exchange in brokerTree:
+            dataInfo = brokerTree[exchange]["data"]
+            if dataInfo["name"] == e:
+                return dataInfo
+        return None

@@ -1,3 +1,4 @@
+from marketticker.APIServer import APIServer
 from marketticker.AccountDataManager import AccountDataManager
 from marketticker.MarketDataManager import MarketDataManager
 from marketticker.MQPublisher import MQPublisher
@@ -11,6 +12,8 @@ class CCXTMarketTickerFactory(ZookeeperListener, MarketListener):
     rabbitQueuePublisher = None
     fetcher : {str: MarketDataManager} = {}
     loop = None
+    rabbit_host = None
+    rabbit_port = None
 
     def __init__(self, loop=None):
         if loop is None:
@@ -73,6 +76,12 @@ class CCXTMarketTickerFactory(ZookeeperListener, MarketListener):
             publisher.connect()
             a.setRabbitQueuePublisher(publisher)
         return a
+
+    def startApiService(self, zookkeeperHost, zookeeperPort, zookeeperPath):
+        z = ZookeeperManager(zookkeeperHost, zookeeperPort, zookeeperPath)
+        z.connect()
+        api = APIServer(z)
+        return api.app()
 
     def startMarketDataZookeeperListener(self, zookeeperHost, zookeeperPort,
                                          zookeeperPath, marketListener: MarketListener):

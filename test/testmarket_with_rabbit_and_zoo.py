@@ -20,12 +20,14 @@ class TestMarketWithRabbitAndZoo(unittest.TestCase):
             def onMarketTickerReceived(self, data):
                 print("2: "+str(data))
 
-        listener = MQListener("localhost", 5672, os.environ.get("rabbit_user"),os.environ.get("rabbit_pwd"))
+        listener = MQListener(os.environ.get("rabbit_host"), int(os.environ.get("rabbit_port")), os.environ.get("rabbit_user"),os.environ.get("rabbit_pwd"))
         listener.connect()
 
         try:
 
-            fetcher = factory.startMarketDataZookeeperListener("localhost", 2181, "/marketticker",
+            fetcher = factory.startMarketDataZookeeperListener(os.environ.get("zookeeper_host"),
+                                                               os.environ.get("zookeeper_port"),
+                                                               os.environ.get("zookeeper_path"),
                                                      YourListener2())
 
             listener.followMarket("binance", Symbol("ETH/USDT"), "1m", YourListener2())

@@ -62,6 +62,8 @@ class MarketData:
             "close": self.close,
             "volume": self.volume,
             "last": self.last if self.last is not None else self.close,
+            "closeTime": self.closeTime,
+            "datetime": self.datetime,
             "final": self.final
         }
 
